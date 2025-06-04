@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Loader2, AlertCircle, Download } from "lucide-react"
+import { Loader2, AlertCircle, Download, GalleryThumbnailsIcon as Gallery } from "lucide-react"
 import CarPlatePreview from "@/components/car-plate-preview"
 import PdfGenerator from "@/components/pdf-generator"
 import TonConnectButton from "@/components/ton-connect-button"
 import NftMinter from "@/components/nft-minter"
+import MintedPlatesGallery from "@/components/minted-plates-gallery"
 import { useTonConnect } from "@/hooks/use-ton-connect"
 
 export default function Home() {
@@ -54,13 +55,17 @@ export default function Home() {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="create">Create</TabsTrigger>
               <TabsTrigger value="download" disabled={!pdfUrl}>
                 Download
               </TabsTrigger>
               <TabsTrigger value="mint" disabled={!pdfUrl}>
                 Mint NFT
+              </TabsTrigger>
+              <TabsTrigger value="gallery">
+                <Gallery className="w-4 h-4 mr-1" />
+                Gallery
               </TabsTrigger>
             </TabsList>
 
@@ -138,6 +143,10 @@ export default function Home() {
                   </Alert>
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="gallery" className="py-4">
+              <MintedPlatesGallery />
             </TabsContent>
           </Tabs>
         </CardContent>
