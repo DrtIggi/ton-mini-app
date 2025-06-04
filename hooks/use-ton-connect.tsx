@@ -22,6 +22,7 @@ interface TonConnectContextType {
   wallet: Wallet | null
   connect: () => void
   disconnect: () => void
+  tonConnectUI: TonConnectUI | null
 }
 
 const TonConnectContext = createContext<TonConnectContextType>({
@@ -30,6 +31,7 @@ const TonConnectContext = createContext<TonConnectContextType>({
   wallet: null,
   connect: () => {},
   disconnect: () => {},
+  tonConnectUI: null,
 })
 
 export function TonConnectProvider({ children }: { children: ReactNode }) {
@@ -42,7 +44,6 @@ export function TonConnectProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    // Initialize TonConnect UI SDK
     if (!tonConnectUIRef.current) {
       tonConnectUIRef.current = new TonConnectUI({
         manifestUrl:
@@ -69,9 +70,8 @@ export function TonConnectProvider({ children }: { children: ReactNode }) {
 
   const connect = () => {
     if (!tonConnectUIRef.current) return
-
     setConnecting(true)
-    tonConnectUIRef.current.openModal() // Shows wallet selection modal
+    tonConnectUIRef.current.openModal()
     setConnecting(false)
   }
 
@@ -82,7 +82,14 @@ export function TonConnectProvider({ children }: { children: ReactNode }) {
 
   return (
     <TonConnectContext.Provider
-      value={{ wallet, connected, connecting, connect, disconnect }}
+      value={{
+        wallet,
+        connected,
+        connecting,
+        connect,
+        disconnect,
+        tonConnectUI: tonConnectUIRef.current,
+      }}
     >
       {children}
     </TonConnectContext.Provider>
