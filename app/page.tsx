@@ -16,21 +16,37 @@ import NftMinter from "@/components/nft-minter"
 import { useTonConnect } from "@/hooks/use-ton-connect"
 
 export default function Home() {
-  const [plateNumber, setPlateNumber] = useState("")
+  const [series, setSeries] = useState("")
+  const [number, setNumber] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [pdfUrl, setPdfUrl] = useState("")
   const [activeTab, setActiveTab] = useState("create")
   const { connected } = useTonConnect()
 
-  const handlePlateNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Allow only alphanumeric characters
-    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase()
-    setPlateNumber(value)
+  // Разрешённые серии для Дубая
+  const allowedSeries = [
+    "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z",
+    "AA","BB","CC","DD"
+  ]
+
+  const handleSeriesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.toUpperCase().replace(/[^A-Z]/g, "")
+    if (value.length > 2) value = value.slice(0, 2)
+    setSeries(value)
   }
 
-  const handleGeneratePdf = async () => {
-    if (!plateNumber) return
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/[^0-9]/g, "")
+    if (value.length > 5) value = value.slice(0, 5)
+    setNumber(value)
+  }
 
+  const plateNumber = series + number
+  const isPlateValid =
+    allowedSeries.includes(series) && number.length > 0 && number.length <= 5
+
+  const handleGeneratePdf = async () => {
+    if (!isPlateValid) return
     setIsGenerating(true)
     try {
       const url = await PdfGenerator.generate(plateNumber)
@@ -44,7 +60,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-background text-foreground">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Car Plate NFT Creator</CardTitle>
@@ -66,15 +82,26 @@ export default function Home() {
 
             <TabsContent value="create" className="space-y-4 py-4">
               <div className="space-y-2">
-                <label htmlFor="plate-number" className="text-sm font-medium">
-                  Enter Plate Number
+                <label htmlFor="series" className="text-sm font-medium">
+                  Plate Code
                 </label>
                 <Input
-                  id="plate-number"
-                  value={plateNumber}
-                  onChange={handlePlateNumberChange}
-                  placeholder="ABC123"
-                  maxLength={7}
+                  id="series"
+                  value={series}
+                  onChange={handleSeriesChange}
+                  placeholder="AA"
+                  maxLength={2}
+                  className="text-center text-lg font-bold"
+                />
+                <label htmlFor="number" className="text-sm font-medium mt-2">
+                  Plate Number
+                </label>
+                <Input
+                  id="number"
+                  value={number}
+                  onChange={handleNumberChange}
+                  placeholder="12345"
+                  maxLength={5}
                   className="text-center text-lg font-bold"
                 />
               </div>
@@ -83,7 +110,7 @@ export default function Home() {
                 <CarPlatePreview plateNumber={plateNumber} />
               </div>
 
-              <Button onClick={handleGeneratePdf} disabled={!plateNumber || isGenerating} className="w-full">
+              <Button onClick={handleGeneratePdf} disabled={!isPlateValid || isGenerating} className="w-full" variant="star">
                 {isGenerating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -104,14 +131,14 @@ export default function Home() {
 
                   <div className="flex justify-center">
                     <a href={pdfUrl} download={`car-plate-${plateNumber}.pdf`} className="inline-flex">
-                      <Button>
+                      <Button variant="star">
                         <Download className="mr-2 h-4 w-4" />
                         Download PDF
                       </Button>
                     </a>
                   </div>
 
-                  <Button onClick={() => setActiveTab("mint")} variant="outline" className="w-full mt-2">
+                  <Button onClick={() => setActiveTab("mint")} variant="star" className="w-full mt-2">
                     Continue to Mint NFT
                   </Button>
                 </div>

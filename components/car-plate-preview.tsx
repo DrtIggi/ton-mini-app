@@ -16,39 +16,64 @@ export default function CarPlatePreview({ plateNumber }: CarPlatePreviewProps) {
     const ctx = canvas.getContext("2d")
     if (!ctx) return
 
-    // Clear canvas
+    // Очистка
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-    // Draw plate background
-    ctx.fillStyle = "#FFFFFF"
+    // Фон
+    ctx.fillStyle = "#fff"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    // Draw plate border
-    ctx.strokeStyle = "#000000"
-    ctx.lineWidth = 4
-    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20)
+    // Рамка
+    ctx.strokeStyle = "#222"
+    ctx.lineWidth = 6
+    ctx.strokeRect(5, 5, canvas.width - 10, canvas.height - 10)
 
-    // Draw blue strip on the left side (EU style)
-    ctx.fillStyle = "#003399"
-    ctx.fillRect(20, 20, 40, canvas.height - 40)
+    // Парсим plateNumber: серия (буквы) и номер (цифры)
+    const match = plateNumber.match(/^([A-Z]{1,2})(\d{1,5})$/)
+    let series = "XX"
+    let number = "00000"
+    if (match) {
+      series = match[1]
+      number = match[2].padStart(5, "0")
+    }
 
-    // Draw country code
-    ctx.fillStyle = "#FFFFFF"
-    ctx.font = "bold 24px Arial"
+    // Серия (буквы) слева
+    ctx.fillStyle = "#111"
+    ctx.font = "bold 54px 'SF Pro', 'Arial', sans-serif"
+    ctx.textAlign = "left"
+
+    let xSeries = 38
+    let ySeries = 85
+    // Рисуем серию с интервалом между буквами
+    if (series.length === 2) {
+      ctx.fillText(String(series[0]), xSeries, ySeries)
+      ctx.fillText(String(series[1]), xSeries + 38, ySeries)
+    } else {
+      ctx.fillText(String(series), xSeries, ySeries)
+    }
+
+    // DUBAI и арабский текст по центру
+    // Арабский текст
+    ctx.font = "bold 32px 'Arial', sans-serif"
     ctx.textAlign = "center"
-    ctx.fillText("TON", 40, 50)
+    ctx.fillText("دبي", canvas.width / 2, 48)
+    // DUBAI
+    ctx.font = "bold 18px 'SF Pro', 'Arial', sans-serif"
+   
+    let dubai = "DUBAI"
+    let xDubai = canvas.width / 2 - 38
+    for (let i = 0; i < dubai.length; i++) {
+      ctx.fillText(String(dubai[i]), xDubai + i * 18, 72)
+    }
 
-    // Draw flag symbol
-    ctx.fillStyle = "#FFCC00"
-    ctx.beginPath()
-    ctx.arc(40, 80, 15, 0, Math.PI * 2)
-    ctx.fill()
-
-    // Draw plate number
-    ctx.fillStyle = "#000000"
-    ctx.font = "bold 72px Arial"
-    ctx.textAlign = "center"
-    ctx.fillText(plateNumber || "ABC123", canvas.width / 2 + 20, canvas.height / 2 + 10)
+    // Номер (цифры) справа
+    ctx.font = "bold 54px 'SF Pro', 'Arial', sans-serif"
+    ctx.textAlign = "right"
+    let xNumber = canvas.width - 38
+    // Рисуем цифры с интервалом между ними
+    for (let i = 0; i < number.length; i++) {
+      ctx.fillText(String(number[i]), xNumber - i * 32, ySeries)
+    }
   }, [plateNumber])
 
   return (
